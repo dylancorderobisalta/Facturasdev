@@ -1,163 +1,110 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-type VisualizationOptionsProps = {
-  selectedProvider: string;
+type Flags = {
+  flete: boolean;
+  descuento: boolean;
+  cantidad: boolean;
+  impuesto: boolean;
+  moneda: boolean;
+  comentarios: boolean;
 };
 
-type FieldOptions = {
-  mostrarFlete: boolean;
-  mostrarDescuento: boolean;
-  mostrarCantidad: boolean;
-  mostrarImpuesto: boolean;
-  mostrarMoneda: boolean;
-  mostrarComentarios: boolean;
-};
+const KEY = "display_options_v1";
 
-export function VisualizationOptions({ selectedProvider }: VisualizationOptionsProps) {
-  const [options, setOptions] = useState<FieldOptions>({
-    mostrarFlete: true,
-    mostrarDescuento: true,
-    mostrarCantidad: false,
-    mostrarImpuesto: false,
-    mostrarMoneda: false,
-    mostrarComentarios: false,
+export default function VisualizationOptions() {
+  const [opts, setOpts] = useState<Flags>({
+    flete: true,
+    descuento: true,
+    cantidad: false,
+    impuesto: false,
+    moneda: false,
+    comentarios: false,
   });
 
-  const handleToggle = (field: keyof FieldOptions) => {
-    setOptions(prev => ({
-      ...prev,
-      [field]: !prev[field]
-    }));
-  };
+  // Cargar desde localStorage al montar
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(KEY);
+      if (raw) setOpts((prev) => ({ ...prev, ...JSON.parse(raw) }));
+    } catch {}
+  }, []);
 
-  const handleSave = () => {
-    if (!selectedProvider) {
-      alert("Debe seleccionar un proveedor primero");
-      return;
-    }
-    
-    // Aquí iría la lógica para guardar las opciones del proveedor
-    console.log(`Guardando opciones para proveedor: ${selectedProvider}`, options);
-  };
+  // Guardar cada vez que cambie
+  useEffect(() => {
+    try {
+      localStorage.setItem(KEY, JSON.stringify(opts));
+    } catch {}
+  }, [opts]);
+
+  const set = (k: keyof Flags, v: boolean) => setOpts((p) => ({ ...p, [k]: v }));
 
   return (
-    <div>
-      <h2 className="text-lg font-semibold text-slate-800 mb-4">
-        Opciones de visualización
-        {selectedProvider && (
-          <span className="text-sm font-normal text-slate-600 ml-2">
-            - {selectedProvider}
-          </span>
-        )}
-      </h2>
-      
-      {!selectedProvider && (
-        <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-          <p className="text-amber-800 text-sm">
-            Debe seleccionar un proveedor en la pestaña anterior para configurar las opciones de visualización.
-          </p>
-        </div>
-      )}
+    <section className="mt-6">
+      <h3 className="text-base font-semibold mb-4">Opciones de visualización</h3>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-6xl">
-        <ToggleField
-          label="Mostrar flete:"
-          checked={options.mostrarFlete}
-          onChange={() => handleToggle("mostrarFlete")}
-          disabled={!selectedProvider}
-        />
-        
-        <ToggleField
-          label="Mostrar descuento:"
-          checked={options.mostrarDescuento}
-          onChange={() => handleToggle("mostrarDescuento")}
-          disabled={!selectedProvider}
-        />
-        
-        <ToggleField
-          label="Mostrar cantidad:"
-          checked={options.mostrarCantidad}
-          onChange={() => handleToggle("mostrarCantidad")}
-          disabled={!selectedProvider}
-        />
-        
-        <ToggleField
-          label="Mostrar impuesto:"
-          checked={options.mostrarImpuesto}
-          onChange={() => handleToggle("mostrarImpuesto")}
-          disabled={!selectedProvider}
-        />
-        
-        <ToggleField
-          label="Mostrar moneda:"
-          checked={options.mostrarMoneda}
-          onChange={() => handleToggle("mostrarMoneda")}
-          disabled={!selectedProvider}
-        />
-        
-        <ToggleField
-          label="Mostrar comentarios:"
-          checked={options.mostrarComentarios}
-          onChange={() => handleToggle("mostrarComentarios")}
-          disabled={!selectedProvider}
-        />
+      <div className="grid grid-cols-12 gap-6">
+        <ToggleCard className="col-span-12 sm:col-span-4" label="Mostrar flete:" value={opts.flete} onChange={(v) => set("flete", v)} />
+        <ToggleCard className="col-span-12 sm:col-span-4" label="Mostrar descuento:" value={opts.descuento} onChange={(v) => set("descuento", v)} />
+        <ToggleCard className="col-span-12 sm:col-span-4" label="Mostrar cantidad:" value={opts.cantidad} onChange={(v) => set("cantidad", v)} />
+        <ToggleCard className="col-span-12 sm:col-span-4" label="Mostrar impuesto:" value={opts.impuesto} onChange={(v) => set("impuesto", v)} />
+        <ToggleCard className="col-span-12 sm:col-span-4" label="Mostrar moneda:" value={opts.moneda} onChange={(v) => set("moneda", v)} />
+        <ToggleCard className="col-span-12 sm:col-span-4" label="Mostrar comentarios:" value={opts.comentarios} onChange={(v) => set("comentarios", v)} />
       </div>
 
-      {/* Botón guardar */}
-      <div className="mt-8">
-        <button 
-          className="btn btn-primary px-8"
-          onClick={handleSave}
-          disabled={!selectedProvider}
+      <div className="mt-8 flex justify-center">
+        <button
+          className="rounded-xl bg-emerald-600 px-6 py-2 text-white shadow-sm hover:bg-emerald-700"
+          onClick={() => console.log("Guardado", opts)}
         >
           Guardar cambios
         </button>
       </div>
-    </div>
+    </section>
   );
 }
 
-// Componente para cada toggle individual
-function ToggleField({ 
-  label, 
-  checked, 
-  onChange, 
-  disabled = false 
-}: { 
-  label: string; 
-  checked: boolean; 
-  onChange: () => void;
-  disabled?: boolean;
+function ToggleCard({
+  label,
+  value,
+  onChange,
+  className,
+}: {
+  label: string;
+  value: boolean;
+  onChange: (v: boolean) => void;
+  className?: string;
 }) {
   return (
-    <div className={`border border-slate-200 rounded-lg p-4 ${disabled ? "opacity-50" : ""}`}>
-      <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-slate-700">{label}</span>
-        <div className="flex items-center">
+    <div className={className}>
+      <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <span className="font-semibold text-slate-800">{label}</span>
+        <div className="flex items-center gap-3">
+          <span
+            className={`rounded-md px-2 py-0.5 text-xs font-medium ${
+              value ? "bg-orange-100 text-orange-700" : "bg-slate-100 text-slate-500"
+            }`}
+          >
+            {value ? "Activo" : "Inactivo"}
+          </span>
+
+          {/* Switch */}
           <button
-            onClick={onChange}
-            disabled={disabled}
-            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 ${
-              checked 
-                ? "bg-orange-500" 
-                : "bg-slate-300"
-            } ${disabled ? "cursor-not-allowed" : "cursor-pointer"}`}
+            type="button"
+            role="switch"
+            aria-checked={value}
+            onClick={() => onChange(!value)}
+            className={`relative h-6 w-10 rounded-full transition-colors ${
+              value ? "bg-orange-500" : "bg-slate-300"
+            }`}
           >
             <span
-              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                checked ? "translate-x-6" : "translate-x-1"
+              className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white transition-transform ${
+                value ? "translate-x-4" : ""
               }`}
             />
           </button>
-          <span className={`ml-3 text-xs font-medium px-2 py-1 rounded ${
-            checked 
-              ? "bg-orange-100 text-orange-700" 
-              : "bg-slate-100 text-slate-600"
-          }`}>
-            {checked ? "Activo" : "Inactivo"}
-          </span>
         </div>
       </div>
     </div>
