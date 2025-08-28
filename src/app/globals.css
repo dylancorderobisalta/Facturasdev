@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+/* Ajustes visuales básicos */
+:root {
+  color-scheme: light;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  @apply bg-neutral-50 text-slate-800 antialiased;
+}
+
+.container-page {
+  @apply max-w-[1220px] mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+.card {
+  @apply bg-white border border-slate-200 rounded-xl shadow-sm;
+}
+
+.btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition active:scale-[0.99];
+}
+.btn-primary {
+  @apply bg-orange-500 text-white hover:bg-orange-600;
+}
+.btn-ghost {
+  @apply bg-white text-slate-700 border border-slate-300 hover:bg-slate-50;
+}
+.input {
+  @apply w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none ring-0 focus:border-slate-400;
+}
+.th {
+  @apply text-left text-sm font-semibold text-slate-700;
+}
+.td {
+  @apply text-sm text-slate-700;
+}
+.badge {
+  @apply inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-700;
+}
+
+/* Remove arrows from number inputs (Chrome, Safari, Edge, Opera) */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Remove arrows from number inputs (Firefox) */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
